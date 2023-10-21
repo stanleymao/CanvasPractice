@@ -9,10 +9,11 @@ namespace CanvasPractice.Model
 {
     public class ShapeAttribute : NotifyPropertyChangedBase
     {
-        public ShapeAttribute(ShapeType shapeType) {
+        public ShapeAttribute(ShapeType shapeType)
+        {
             Id = string.Concat("S", Guid.NewGuid().ToString("N"));
             ShapeType = shapeType;
-
+            StrokeThickness = 1;
             Vertices.CollectionChanged += Vertices_CollectionChanged;
         }
 
@@ -70,6 +71,20 @@ namespace CanvasPractice.Model
             set => SetProperty(ref _fill, value);
         }
         private SolidColorBrush _fill;
+
+        public int StrokeThickness
+        {
+            get => _strokeThickness;
+            set => SetProperty(ref _strokeThickness, value);
+        }
+        private int _strokeThickness;
+
+        public SolidColorBrush Stroke
+        {
+            get => _stroke;
+            set => SetProperty(ref _stroke, value);
+        }
+        private SolidColorBrush _stroke;
 
         public ObservableCollection<Point> Vertices
         {

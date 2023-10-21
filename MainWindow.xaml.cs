@@ -35,11 +35,11 @@ namespace CanvasPractice
                 shape.Name = attribute.Id;
                 shape.Fill = Brushes.Transparent;
                 shape.Stroke = Brushes.Black;
-                shape.StrokeThickness = 1;
 
                 shape.SetBinding(Shape.DataContextProperty, new Binding("ShapeAttribute"));
 
                 shape.SetBinding(Shape.FillProperty, new Binding("Fill") { Mode = BindingMode.TwoWay });
+                shape.SetBinding(Shape.StrokeThicknessProperty, new Binding("StrokeThickness") { Mode = BindingMode.TwoWay });
 
                 if (shape is Polygon polygon)
                 {
@@ -83,7 +83,6 @@ namespace CanvasPractice
                 if (shape != null)
                 {
                     shape.Stroke = Brushes.Black;
-                    shape.StrokeThickness = 1;
 
                     shape.SetBinding(Shape.DataContextProperty, new Binding("ShapeAttributes[" + attribute.Id + "]"));
                 }
@@ -127,24 +126,34 @@ namespace CanvasPractice
             });
         }
 
-        private void SelectedColorButton_Click(object sender, RoutedEventArgs e)
-        {
-            PalettePopup.IsOpen = true;
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            PalettePopup.IsOpen = false;
-        }
-
-        private void SelectedShapeButton_Click(object sender, RoutedEventArgs e)
+        private void SelectShapeButton_Click(object sender, RoutedEventArgs e)
         {
             ShapePopup.IsOpen = true;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void SelectShapeTypeInternalButton_Click(object sender, RoutedEventArgs e)
         {
             ShapePopup.IsOpen = false;
+        }
+
+        private void SelectFillButton_Click(object sender, RoutedEventArgs e)
+        {
+            PalettePopup.IsOpen = true;
+        }
+
+        private void SelectFillInternalButton_Click(object sender, RoutedEventArgs e)
+        {
+            PalettePopup.IsOpen = false;
+        }
+
+        private void SelectStrokeThicknessButton_Click(object sender, RoutedEventArgs e)
+        {
+            StrokeThicknessPopup.IsOpen = true;
+        }
+
+        private void SelectStrokeThicknessInternalButton_Click(object sender, RoutedEventArgs e)
+        {
+            StrokeThicknessPopup.IsOpen = false;
         }
 
         private void updateCount()

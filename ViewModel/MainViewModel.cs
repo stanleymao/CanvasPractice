@@ -2,6 +2,7 @@
 using CanvasPractice.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -24,7 +25,8 @@ namespace CanvasPractice.ViewModel
             }
 
             SelectedShapeType = ShapeTypes.First(o => o.Type == typeof(Rectangle));
-            SelectedFillColor = PaletteColors.First(o => o.Value == Brushes.Red);
+            SelectedFill = PaletteColors.First(o => o.Value == Brushes.Red);
+            SelectedStrokeThickness = 1;
         }
 
         private bool isCreate = false;
@@ -74,12 +76,35 @@ namespace CanvasPractice.ViewModel
         /// <summary>
         /// 
         /// </summary>
-        public KeyValuePair<string, SolidColorBrush> SelectedFillColor
+        public KeyValuePair<string, SolidColorBrush> SelectedFill
         {
-            get => _selectedFillColor;
-            set => SetProperty(ref _selectedFillColor, value);
+            get => _selectedFill;
+            set => SetProperty(ref _selectedFill, value);
         }
-        private KeyValuePair<string, SolidColorBrush> _selectedFillColor;
+        private KeyValuePair<string, SolidColorBrush> _selectedFill;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ObservableCollection<int> Thicknesses
+        {
+            get => _thicknesses;
+            set => SetProperty(ref _thicknesses, value);
+        }
+        private ObservableCollection<int> _thicknesses = new ObservableCollection<int>()
+        {
+            1, 2, 3, 4, 5, 10
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int SelectedStrokeThickness
+        {
+            get => _selectedStrokeThickness;
+            set => SetProperty(ref _selectedStrokeThickness, value);
+        }
+        private int _selectedStrokeThickness;
 
         /// <summary>
         /// 
@@ -156,6 +181,8 @@ namespace CanvasPractice.ViewModel
                         Point mouseEnd = (Point)obj;
 
                         ShapeAttribute.Fill = Brushes.Transparent;
+                        ShapeAttribute.StrokeThickness = 1;
+                        ShapeAttribute.Stroke = Brushes.Black;
                         ShapeAttribute.X = Math.Min(mouseStart.X, mouseEnd.X);
                         ShapeAttribute.Y = Math.Min(mouseStart.Y, mouseEnd.Y);
                         ShapeAttribute.Width = Math.Abs(mouseStart.X - mouseEnd.X);
@@ -180,7 +207,8 @@ namespace CanvasPractice.ViewModel
                     }
                     else
                     {
-                        ShapeAttribute.Fill = SelectedFillColor.Value;
+                        ShapeAttribute.Fill = SelectedFill.Value;
+                        ShapeAttribute.StrokeThickness = SelectedStrokeThickness;
                         ShapeAttributes.Add(ShapeAttribute.Id, ShapeAttribute);
                         FinishCreateShape?.Invoke(ShapeAttribute);
                     }
@@ -220,9 +248,14 @@ namespace CanvasPractice.ViewModel
             RemoveThumbs?.Invoke();
         });
 
-        public ICommand ChangeFillColorCommand => new DelegateCommand(obj =>
+        public ICommand ChangeFillCommand => new DelegateCommand(obj =>
         {
-            SelectedFillColor = (KeyValuePair<string, SolidColorBrush>)obj;
+            SelectedFill = (KeyValuePair<string, SolidColorBrush>)obj;
+        });
+
+        public ICommand ChangeStrokeThicknessCommand => new DelegateCommand(obj =>
+        {
+            SelectedStrokeThickness = (int)obj;
         });
 
         public ICommand ThumbMouseUpCommand => new DelegateCommand(obj =>
@@ -232,7 +265,8 @@ namespace CanvasPractice.ViewModel
                 if (ShapeAttribute.Vertices.Count == 3)
                 {
                     isCreate = false;
-                    ShapeAttribute.Fill = SelectedFillColor.Value;
+                    ShapeAttribute.Fill = SelectedFill.Value;
+                    ShapeAttribute.StrokeThickness = SelectedStrokeThickness;
                     ShapeAttributes.Add(ShapeAttribute.Id, ShapeAttribute);
                     FinishCreateShape?.Invoke(ShapeAttribute);
                     RemoveThumbs?.Invoke();

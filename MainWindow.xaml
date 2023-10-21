@@ -50,7 +50,7 @@
     </Window.Resources>
     <Grid Background="LightGray">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -174,8 +174,8 @@
                 <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
                     <TextBlock VerticalAlignment="Center" Text="Shape Type" />
                     <Button
-                        x:Name="SelectedShapeButton"
-                        Click="SelectedShapeButton_Click"
+                        x:Name="SelectShapeButton"
+                        Click="SelectShapeButton_Click"
                         Style="{StaticResource SubMenuButtonStyle}">
                         <Button.Content>
                             <Viewbox>
@@ -192,7 +192,7 @@
                         x:Name="ShapePopup"
                         AllowsTransparency="True"
                         Placement="Right"
-                        PlacementTarget="{Binding ElementName=SelectedShapeButton}"
+                        PlacementTarget="{Binding ElementName=SelectShapeButton}"
                         PopupAnimation="Fade"
                         StaysOpen="False">
                         <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding ShapeTypes}">
@@ -205,10 +205,11 @@
                                 <ItemContainerTemplate>
                                     <Border BorderThickness="0">
                                         <Button
+                                            x:Name="SelectShapeTypeInternalButton"
                                             Padding="0"
                                             HorizontalAlignment="Stretch"
                                             Background="Black"
-                                            Click="Button_Click_1"
+                                            Click="SelectShapeTypeInternalButton_Click"
                                             Cursor="Hand"
                                             Foreground="White"
                                             Style="{StaticResource ButtonStyle1}">
@@ -260,21 +261,20 @@
                     </Popup>
                 </ItemsControl>
 
-                <!--  Fill Color  -->
+                <!--  Fill  -->
                 <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
-                    <TextBlock VerticalAlignment="Center" Text="Color" />
+                    <TextBlock VerticalAlignment="Center" Text="Fill" />
                     <Button
-                        x:Name="SelectedColorButton"
-                        Background="{Binding SelectedFillColor.Value}"
-                        Click="SelectedColorButton_Click"
-                        Content="Color"
+                        x:Name="SelectFillButton"
+                        Background="{Binding SelectedFill.Value}"
+                        Click="SelectFillButton_Click"
                         Foreground="PaleGoldenrod"
                         Style="{StaticResource SubMenuButtonStyle}" />
                     <Popup
                         x:Name="PalettePopup"
                         AllowsTransparency="True"
                         Placement="Right"
-                        PlacementTarget="{Binding ElementName=SelectedColorButton}"
+                        PlacementTarget="{Binding ElementName=SelectFillButton}"
                         PopupAnimation="Fade"
                         StaysOpen="False">
                         <ItemsControl ItemsSource="{Binding PaletteColors}">
@@ -288,21 +288,107 @@
                                     <Border BorderBrush="Gray" BorderThickness="1">
                                         <Grid Width="15" Height="15">
                                             <Button
+                                                x:Name="SelectFillInternalButton"
                                                 common:ClosePopupBehaviorService.CloseOnClick="True"
                                                 Background="{Binding Value}"
                                                 BorderThickness="0"
-                                                Click="Button_Click"
+                                                Click="SelectFillInternalButton_Click"
                                                 Cursor="Hand"
                                                 Style="{StaticResource ButtonStyle1}"
                                                 ToolTip="{Binding Key}">
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="Click">
-                                                        <i:InvokeCommandAction Command="{Binding Data.ChangeFillColorCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                        <i:InvokeCommandAction Command="{Binding Data.ChangeFillCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
                                             </Button>
                                         </Grid>
                                     </Border>
+                                </ItemContainerTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Popup>
+                </ItemsControl>
+
+                <!--  Stroke Thickness  -->
+                <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
+                    <TextBlock VerticalAlignment="Center" Text="Stroke Thickness" />
+                    <Button
+                        x:Name="SelectStrokeThicknessButton"
+                        Click="SelectStrokeThicknessButton_Click"
+                        Style="{StaticResource SubMenuButtonStyle}">
+                        <Button.Content>
+                            <Rectangle
+                                Width="50"
+                                Height="{Binding SelectedStrokeThickness}"
+                                Margin="8"
+                                Fill="Wheat" />
+                            <!--<TextBlock Foreground="Red" Text="{Binding SelectedStrokeThickness}" />-->
+                        </Button.Content>
+                    </Button>
+                    <Popup
+                        x:Name="StrokeThicknessPopup"
+                        AllowsTransparency="True"
+                        Placement="Right"
+                        PlacementTarget="{Binding ElementName=SelectStrokeThicknessButton}"
+                        PopupAnimation="Fade"
+                        StaysOpen="False">
+                        <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding Thicknesses}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <ItemContainerTemplate>
+                                    <Border BorderThickness="0">
+                                        <Button
+                                            x:Name="SelectStrokeThicknessInternalButton"
+                                            Padding="0"
+                                            HorizontalAlignment="Stretch"
+                                            Background="Black"
+                                            Click="SelectStrokeThicknessInternalButton_Click"
+                                            Cursor="Hand"
+                                            Foreground="White"
+                                            Style="{StaticResource ButtonStyle1}">
+                                            <Grid x:Name="GridRoot">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" SharedSizeGroup="Icon" />
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Desc" />
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.ColumnSpan="2" Fill="Black" />
+                                                <Rectangle
+                                                    Height="{Binding}"
+                                                    Margin="8"
+                                                    Fill="Wheat" />
+                                                <TextBlock
+                                                    x:Name="DecriptionTextBlock"
+                                                    Grid.Column="1"
+                                                    Margin="4"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding StringFormat='{}{0} Px'}" />
+                                            </Grid>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <i:InvokeCommandAction Command="{Binding Data.ChangeStrokeThicknessCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </Border>
+                                    <ItemContainerTemplate.Triggers>
+                                        <DataTrigger Value="False">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                                    <Binding />
+                                                    <Binding Path="Data.SelectedStrokeThickness" Source="{StaticResource Proxy}" />
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter TargetName="GridRoot" Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                        <Trigger SourceName="GridRoot" Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="GridRoot" Property="Opacity" Value="0.8" />
+                                        </Trigger>
+                                    </ItemContainerTemplate.Triggers>
                                 </ItemContainerTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
