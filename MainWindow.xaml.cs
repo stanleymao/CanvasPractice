@@ -40,6 +40,7 @@ namespace CanvasPractice
 
                 shape.SetBinding(Shape.FillProperty, new Binding("Fill") { Mode = BindingMode.TwoWay });
                 shape.SetBinding(Shape.StrokeThicknessProperty, new Binding("StrokeThickness") { Mode = BindingMode.TwoWay });
+                shape.SetBinding(Shape.StrokeProperty, new Binding("Stroke") { Mode = BindingMode.TwoWay });
 
                 if (shape is Polygon polygon)
                 {
@@ -82,8 +83,6 @@ namespace CanvasPractice
             {
                 if (shape != null)
                 {
-                    shape.Stroke = Brushes.Black;
-
                     shape.SetBinding(Shape.DataContextProperty, new Binding("ShapeAttributes[" + attribute.Id + "]"));
                 }
             });
@@ -154,6 +153,16 @@ namespace CanvasPractice
         private void SelectStrokeThicknessInternalButton_Click(object sender, RoutedEventArgs e)
         {
             StrokeThicknessPopup.IsOpen = false;
+        }
+
+        private void SelectStrokeButton_Click(object sender, RoutedEventArgs e)
+        {
+            StrokePopup.IsOpen = true;
+        }
+
+        private void SelectStrokeInternalButton_Click(object sender, RoutedEventArgs e)
+        {
+            StrokePopup.IsOpen = false;
         }
 
         private void updateCount()

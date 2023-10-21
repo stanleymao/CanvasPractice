@@ -183,7 +183,7 @@
                                     x:Name="IconPath"
                                     Margin="4"
                                     Data="{Binding SelectedShapeType.Icon2}"
-                                    Stroke="Magenta"
+                                    Stroke="Wheat"
                                     StrokeThickness="4" />
                             </Viewbox>
                         </Button.Content>
@@ -389,6 +389,55 @@
                                             <Setter TargetName="GridRoot" Property="Opacity" Value="0.8" />
                                         </Trigger>
                                     </ItemContainerTemplate.Triggers>
+                                </ItemContainerTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Popup>
+                </ItemsControl>
+
+                <!--  Stroke  -->
+                <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
+                    <TextBlock VerticalAlignment="Center" Text="Stroke" />
+                    <Button
+                        x:Name="SelectStrokeButton"
+                        Background="{Binding SelectedStroke.Value}"
+                        Click="SelectStrokeButton_Click"
+                        Foreground="PaleGoldenrod"
+                        Style="{StaticResource SubMenuButtonStyle}" />
+                    <Popup
+                        x:Name="StrokePopup"
+                        AllowsTransparency="True"
+                        Placement="Right"
+                        PlacementTarget="{Binding ElementName=SelectStrokeButton}"
+                        PopupAnimation="Fade"
+                        StaysOpen="False">
+                        <ItemsControl ItemsSource="{Binding PaletteColors}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Width="180" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <ItemContainerTemplate>
+                                    <Border BorderBrush="Gray" BorderThickness="1">
+                                        <Grid Width="15" Height="15">
+                                            <Button
+                                                x:Name="SelectStrokeInternalButton"
+                                                common:ClosePopupBehaviorService.CloseOnClick="True"
+                                                Background="{Binding Value}"
+                                                BorderThickness="0"
+                                                Click="SelectStrokeInternalButton_Click"
+                                                Cursor="Hand"
+                                                Style="{StaticResource ButtonStyle1}"
+                                                ToolTip="{Binding Key}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <i:InvokeCommandAction Command="{Binding Data.ChangeStrokeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
                                 </ItemContainerTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

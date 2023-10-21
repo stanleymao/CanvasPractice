@@ -14,6 +14,7 @@ namespace CanvasPractice.Model
             Id = string.Concat("S", Guid.NewGuid().ToString("N"));
             ShapeType = shapeType;
             StrokeThickness = 1;
+            Stroke = Brushes.Black;
             Vertices.CollectionChanged += Vertices_CollectionChanged;
         }
 

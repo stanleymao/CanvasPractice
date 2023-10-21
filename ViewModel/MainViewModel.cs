@@ -27,6 +27,7 @@ namespace CanvasPractice.ViewModel
             SelectedShapeType = ShapeTypes.First(o => o.Type == typeof(Rectangle));
             SelectedFill = PaletteColors.First(o => o.Value == Brushes.Red);
             SelectedStrokeThickness = 1;
+            SelectedStroke = PaletteColors.First(o => o.Value == Brushes.DimGray);
         }
 
         private bool isCreate = false;
@@ -105,6 +106,16 @@ namespace CanvasPractice.ViewModel
             set => SetProperty(ref _selectedStrokeThickness, value);
         }
         private int _selectedStrokeThickness;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public KeyValuePair<string, SolidColorBrush> SelectedStroke
+        {
+            get => _selectedStroke;
+            set => SetProperty(ref _selectedStroke, value);
+        }
+        private KeyValuePair<string, SolidColorBrush> _selectedStroke;
 
         /// <summary>
         /// 
@@ -209,6 +220,7 @@ namespace CanvasPractice.ViewModel
                     {
                         ShapeAttribute.Fill = SelectedFill.Value;
                         ShapeAttribute.StrokeThickness = SelectedStrokeThickness;
+                        ShapeAttribute.Stroke = SelectedStroke.Value;
                         ShapeAttributes.Add(ShapeAttribute.Id, ShapeAttribute);
                         FinishCreateShape?.Invoke(ShapeAttribute);
                     }
@@ -258,6 +270,11 @@ namespace CanvasPractice.ViewModel
             SelectedStrokeThickness = (int)obj;
         });
 
+        public ICommand ChangeStrokeCommand => new DelegateCommand(obj =>
+        {
+            SelectedStroke = (KeyValuePair<string, SolidColorBrush>)obj;
+        });
+
         public ICommand ThumbMouseUpCommand => new DelegateCommand(obj =>
         {
             if (SelectedShapeType == ShapeType.Triangle)
@@ -267,6 +284,7 @@ namespace CanvasPractice.ViewModel
                     isCreate = false;
                     ShapeAttribute.Fill = SelectedFill.Value;
                     ShapeAttribute.StrokeThickness = SelectedStrokeThickness;
+                    ShapeAttribute.Stroke = SelectedStroke.Value;
                     ShapeAttributes.Add(ShapeAttribute.Id, ShapeAttribute);
                     FinishCreateShape?.Invoke(ShapeAttribute);
                     RemoveThumbs?.Invoke();
