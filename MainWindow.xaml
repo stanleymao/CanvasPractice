@@ -1,0 +1,346 @@
+﻿<Window
+    x:Class="CanvasPractice.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behavior="clr-namespace:CanvasPractice.Behavior"
+    xmlns:common="clr-namespace:CanvasPractice.Common"
+    xmlns:converter="clr-namespace:CanvasPractice.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:CanvasPractice"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:CanvasPractice.Model"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:viewmodel="clr-namespace:CanvasPractice.ViewModel"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Style/Button.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converter:MouseButtonEventArgsToPointConverter x:Key="MouseButtonEventArgsToPointConverter" />
+            <converter:DebugConverter x:Key="DebugConverter" />
+            <converter:EqualityConverter x:Key="EqualityConverter" />
+
+            <common:BindingProxy x:Key="Proxy" Data="{Binding}" />
+
+            <ObjectDataProvider
+                x:Key="UXModes"
+                MethodName="GetValues"
+                ObjectType="{x:Type sys:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="model:UXMode" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+
+            <ControlTemplate x:Key="ThumbControlTemplate">
+                <Rectangle
+                    Width="9"
+                    Height="9"
+                    Fill="Black"
+                    Stroke="Gray"
+                    StrokeThickness="1" />
+            </ControlTemplate>
+
+        </ResourceDictionary>
+
+    </Window.Resources>
+    <Grid Background="LightGray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Button x:Name="Debug">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <i:InvokeCommandAction Command="{Binding DebugCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Button>
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding Source={StaticResource UXModes}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="3" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="GridRoot" Background="Black">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Button
+                                x:Name="ButtonContent"
+                                Padding="5"
+                                Background="Black"
+                                BorderThickness="0"
+                                Content="{Binding}"
+                                Cursor="Hand"
+                                Foreground="White"
+                                Style="{StaticResource ButtonStyle1}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding Data.ChangeUXModeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Rectangle
+                                x:Name="UnderlineRectangle"
+                                Grid.Row="1"
+                                Height="2"
+                                Fill="Red" />
+                            <Viewbox
+                                x:Name="IndicatorViewbox"
+                                Grid.Row="2"
+                                Height="4">
+                                <Path Data="M0 0 L10 0 L5 5 Z" Fill="Red" />
+                            </Viewbox>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Value="False">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                        <Binding />
+                                        <Binding Path="Data.SelectedUXMode" Source="{StaticResource Proxy}" />
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter TargetName="ButtonContent" Property="Opacity" Value="0.6" />
+                                <Setter TargetName="UnderlineRectangle" Property="Opacity" Value="0.6" />
+                                <Setter TargetName="IndicatorViewbox" Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                            <Trigger SourceName="GridRoot" Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContent" Property="Opacity" Value="0.8" />
+                            </Trigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Orientation="Vertical">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Draw}">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <StackPanel.Resources>
+                    <ItemsPanelTemplate x:Key="SubSettingGrid">
+                        <UniformGrid Columns="2" />
+                    </ItemsPanelTemplate>
+
+                    <Style TargetType="{x:Type ItemsControl}">
+                        <Setter Property="ItemsPanel" Value="{Binding Source={StaticResource SubSettingGrid}}" />
+                        <Setter Property="Background" Value="Black" />
+                    </Style>
+
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Foreground" Value="White" />
+                    </Style>
+                </StackPanel.Resources>
+
+                <ItemsControl
+                    Height="30"
+                    Background="#FF0F0F0F"
+                    BorderThickness="0,0,0,1">
+                    <Border Opacity="0.5">
+                        <TextBlock VerticalAlignment="Center" Text="圖形類型" />
+                    </Border>
+                    <Button
+                        x:Name="SelectedShapeButton"
+                        Background="Black"
+                        BorderThickness="0"
+                        Click="SelectedShapeButton_Click"
+                        Cursor="Hand"
+                        Foreground="PaleGoldenrod"
+                        Style="{StaticResource ButtonStyle1}">
+                        <Button.Content>
+                            <Viewbox>
+                                <Path
+                                    x:Name="IconPath"
+                                    Margin="4"
+                                    Data="{Binding SelectedShapeType.Icon2}"
+                                    Stroke="Magenta"
+                                    StrokeThickness="4" />
+                            </Viewbox>
+                        </Button.Content>
+                    </Button>
+                    <Popup
+                        x:Name="ShapePopup"
+                        AllowsTransparency="True"
+                        Placement="Right"
+                        PlacementTarget="{Binding ElementName=SelectedShapeButton}"
+                        PopupAnimation="Fade"
+                        StaysOpen="False">
+                        <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding ShapeTypes}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <ItemContainerTemplate>
+                                    <Border BorderThickness="0">
+                                        <Button
+                                            Padding="0"
+                                            HorizontalAlignment="Stretch"
+                                            Background="Black"
+                                            Click="Button_Click_1"
+                                            Cursor="Hand"
+                                            Foreground="White"
+                                            Style="{StaticResource ButtonStyle1}">
+                                            <Grid x:Name="GridRoot">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" SharedSizeGroup="Icon" />
+                                                    <ColumnDefinition Width="2*" SharedSizeGroup="Desc" />
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.ColumnSpan="2" Fill="Black" />
+                                                <Viewbox Height="32">
+                                                    <Path
+                                                        x:Name="IconPath"
+                                                        Margin="4"
+                                                        Data="{Binding Icon2}"
+                                                        Stroke="Magenta"
+                                                        StrokeThickness="4" />
+                                                </Viewbox>
+                                                <TextBlock
+                                                    x:Name="DecriptionTextBlock"
+                                                    Grid.Column="1"
+                                                    Margin="4"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding Code}" />
+                                            </Grid>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Click">
+                                                    <i:InvokeCommandAction Command="{Binding Data.ChangeShapeTypeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+                                    </Border>
+                                    <ItemContainerTemplate.Triggers>
+                                        <DataTrigger Value="False">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                                    <Binding />
+                                                    <Binding Path="Data.SelectedUXMode" Source="{StaticResource Proxy}" />
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter TargetName="GridRoot" Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                        <Trigger SourceName="GridRoot" Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="GridRoot" Property="Opacity" Value="0.8" />
+                                        </Trigger>
+                                    </ItemContainerTemplate.Triggers>
+                                </ItemContainerTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Popup>
+                </ItemsControl>
+
+                <ItemsControl
+                    Height="30"
+                    Background="#FF0F0F0F"
+                    BorderThickness="0,0,0,1">
+                    <TextBlock VerticalAlignment="Center" Text="Color" />
+                    <Button
+                        x:Name="SelectedColorButton"
+                        Background="{Binding SelectedFillColor.Value}"
+                        BorderThickness="1,0,0,0"
+                        Click="SelectedColorButton_Click"
+                        Content="Color"
+                        Cursor="Hand"
+                        Foreground="PaleGoldenrod"
+                        Style="{StaticResource ButtonStyle1}" />
+                    <Popup
+                        x:Name="PalettePopup"
+                        AllowsTransparency="True"
+                        Placement="Right"
+                        PlacementTarget="{Binding ElementName=SelectedColorButton}"
+                        PopupAnimation="Fade"
+                        StaysOpen="False">
+                        <ItemsControl ItemsSource="{Binding PaletteColors}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Width="180" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <ItemContainerTemplate>
+                                    <Border BorderBrush="Gray" BorderThickness="1">
+                                        <Grid Width="15" Height="15">
+                                            <Button
+                                                common:ClosePopupBehaviorService.CloseOnClick="True"
+                                                Background="{Binding Value}"
+                                                BorderThickness="0"
+                                                Click="Button_Click"
+                                                Cursor="Hand"
+                                                Style="{StaticResource ButtonStyle1}"
+                                                ToolTip="{Binding Key}">
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="Click">
+                                                        <i:InvokeCommandAction Command="{Binding Data.ChangeFillColorCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </ItemContainerTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Popup>
+                </ItemsControl>
+
+            </StackPanel>
+
+
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Grid.Column="1">
+            <Canvas
+                x:Name="MyCanvas"
+                Width="1000"
+                Height="800"
+                Background="DarkGray">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction
+                            Command="{Binding CanvasMouseDownCommand}"
+                            EventArgsConverter="{StaticResource MouseButtonEventArgsToPointConverter}"
+                            EventArgsConverterParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}}}"
+                            PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction
+                            Command="{Binding CanvasMouseMoveCommand}"
+                            EventArgsConverter="{StaticResource MouseButtonEventArgsToPointConverter}"
+                            EventArgsConverterParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}}}"
+                            PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseUp">
+                        <i:InvokeCommandAction
+                            Command="{Binding CanvasMouseUpCommand}"
+                            EventArgsConverter="{StaticResource MouseButtonEventArgsToPointConverter}"
+                            EventArgsConverterParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}}}"
+                            PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Polygon
+                    Points="0 0 10 10"
+                    Stroke="Blue"
+                    StrokeThickness="2" />
+            </Canvas>
+        </ScrollViewer>
+    </Grid>
+</Window>
