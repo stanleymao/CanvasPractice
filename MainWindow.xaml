@@ -57,7 +57,7 @@
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button x:Name="Debug">
+        <Button x:Name="Debug" Click="Debug_Click">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <i:InvokeCommandAction Command="{Binding DebugCommand}" />
@@ -303,6 +303,11 @@
                     </Popup>
                 </ItemsControl>
 
+                <TextBlock
+                    Name="CountTextBlock"
+                    Foreground="Black"
+                    Text="{Binding ElementName=MyCanvas, Path=Children.Count, StringFormat='CanvasCount: {0}'}" />
+
             </StackPanel>
 
 
@@ -336,10 +341,6 @@
                             PassEventArgsToCommand="True" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <Polygon
-                    Points="0 0 10 10"
-                    Stroke="Blue"
-                    StrokeThickness="2" />
             </Canvas>
         </ScrollViewer>
     </Grid>

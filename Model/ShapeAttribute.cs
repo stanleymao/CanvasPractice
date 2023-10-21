@@ -1,8 +1,8 @@
 ﻿using CanvasPractice.Common;
 using System;
-using System.Security.Cryptography;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace CanvasPractice.Model
@@ -12,6 +12,8 @@ namespace CanvasPractice.Model
         public ShapeAttribute(ShapeType shapeType) {
             Id = string.Concat("S", Guid.NewGuid().ToString("N"));
             ShapeType = shapeType;
+
+            Vertices.CollectionChanged += Vertices_CollectionChanged;
         }
 
         public ShapeType ShapeType
@@ -69,11 +71,16 @@ namespace CanvasPractice.Model
         }
         private SolidColorBrush _fill;
 
-        public PointCollection Vertices
+        public ObservableCollection<Point> Vertices
         {
             get => _vertices;
             set => SetProperty(ref _vertices, value);
         }
-        private PointCollection _vertices = new PointCollection();
+        private ObservableCollection<Point> _vertices = new ObservableCollection<Point>();
+
+        private void Vertices_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(Vertices));
+        }
     }
 }

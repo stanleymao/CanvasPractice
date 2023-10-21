@@ -3,16 +3,14 @@ using CanvasPractice.ViewModel;
 using Microsoft.Xaml.Behaviors;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Ink;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using EventTrigger = Microsoft.Xaml.Behaviors.EventTrigger;
+using PointCollectionConverter = CanvasPractice.Converter.PointCollectionConverter;
 
 namespace CanvasPractice
 {
@@ -41,21 +39,30 @@ namespace CanvasPractice
 
                 shape.SetBinding(Shape.DataContextProperty, new Binding("ShapeAttribute"));
 
-                shape.SetBinding(Canvas.LeftProperty, new Binding("X") { Mode = BindingMode.TwoWay });
-                shape.SetBinding(Canvas.TopProperty, new Binding("Y") { Mode = BindingMode.TwoWay });
                 shape.SetBinding(Shape.FillProperty, new Binding("Fill") { Mode = BindingMode.TwoWay });
 
                 if (shape is Polygon polygon)
                 {
-                    polygon.SetBinding(Polygon.PointsProperty, new Binding("Vertices") { Mode = BindingMode.OneWay });
+                    Canvas.SetLeft(polygon, 0);
+                    Canvas.SetTop(polygon, 0);
+                    
+                    polygon.SetBinding(Polygon.PointsProperty, new Binding("Vertices")
+                    {
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                        Converter = new PointCollectionConverter()
+                    });
                 }
                 else
                 {
+                    shape.SetBinding(Canvas.LeftProperty, new Binding("X") { Mode = BindingMode.TwoWay });
+                    shape.SetBinding(Canvas.TopProperty, new Binding("Y") { Mode = BindingMode.TwoWay });
                     shape.SetBinding(Shape.WidthProperty, new Binding("Width") { Mode = BindingMode.TwoWay });
                     shape.SetBinding(Shape.HeightProperty, new Binding("Height") { Mode = BindingMode.TwoWay });
                 }
 
                 MyCanvas.Children.Add(shape);
+                updateCount();
             });
 
             vm.RemoveShape = new Action<string>((string id) =>
@@ -67,35 +74,12 @@ namespace CanvasPractice
                 if (s != null)
                 {
                     MyCanvas.Children.Remove(s as Shape);
+                    updateCount();
                 }
             });
 
             vm.FinishCreateShape = new Action<ShapeAttribute>((ShapeAttribute attribute) =>
             {
-                if (attribute.ShapeType == ShapeType.Triangle)
-                {
-                    // TODO: 這整段跟CreateShape一樣，可合併
-                    shape = (Shape)Activator.CreateInstance(attribute.ShapeType.Type);
-
-                    shape.Name = attribute.Id;
-                    shape.Fill = Brushes.Transparent;
-                    shape.Stroke = Brushes.Black;
-                    shape.StrokeThickness = 1;
-
-                    // shape.SetBinding(Shape.DataContextProperty, new Binding("ShapeAttribute"));
-
-                    //shape.SetBinding(Canvas.LeftProperty, new Binding("X") { Mode = BindingMode.TwoWay });
-                    //shape.SetBinding(Canvas.TopProperty, new Binding("Y") { Mode = BindingMode.TwoWay });
-                    shape.SetBinding(Shape.FillProperty, new Binding("Fill") { Mode = BindingMode.TwoWay });
-
-                    if (shape is Polygon polygon)
-                    {
-                        polygon.SetBinding(Polygon.PointsProperty, new Binding("Vertices") { Mode = BindingMode.OneWay });
-                    }
-
-                    MyCanvas.Children.Add(shape);
-                }
-                
                 if (shape != null)
                 {
                     shape.Stroke = Brushes.Black;
@@ -130,6 +114,7 @@ namespace CanvasPractice
                 }
                 Canvas.SetZIndex(thumb, 99);
                 MyCanvas.Children.Add(thumb);
+                updateCount();
             });
 
             vm.RemoveThumbs = new Action(() =>
@@ -137,6 +122,7 @@ namespace CanvasPractice
                 foreach (var item in MyCanvas.Children.OfType<Thumb>().ToList())
                 {
                     MyCanvas.Children.Remove(item);
+                    updateCount();
                 }
             });
         }
@@ -159,6 +145,25 @@ namespace CanvasPractice
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             ShapePopup.IsOpen = false;
+        }
+
+        private void updateCount()
+        {
+            BindingOperations.GetBindingExpression(CountTextBlock, TextBlock.TextProperty).UpdateTarget();
+        }
+
+        private void Debug_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in MyCanvas.Children.OfType<Shape>().ToList())
+            {
+                if (item is Polygon polygon)
+                {
+                    if (polygon.Points.Count > 0)
+                    {
+                        polygon.Points[0] = new Point(polygon.Points[0].X + 20, polygon.Points[0].Y);
+                    }
+                }
+            }
         }
     }
 }

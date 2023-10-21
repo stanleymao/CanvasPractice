@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -106,7 +105,7 @@ namespace CanvasPractice.ViewModel
         {
             if (SelectedShapeType == ShapeType.Triangle)
             {
-                ;
+                CreateShape?.Invoke(ShapeAttribute);
             }
             else
             {
@@ -139,11 +138,15 @@ namespace CanvasPractice.ViewModel
                         ShapeAttribute = new ShapeAttribute(SelectedShapeType);
                         isCreate = true;
                         CreateThumb?.Invoke(null);
+                        CreateShape?.Invoke(ShapeAttribute);
+
+                        ShapeAttribute.Vertices.Add(new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4));
                     }
                     else
                     {
                         ShapeAttribute.X = ((Point)obj).X - 4;
                         ShapeAttribute.Y = ((Point)obj).Y - 4;
+                        ShapeAttribute.Vertices[ShapeAttribute.Vertices.Count- 1] = new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4);
                     }
                 }
                 else
@@ -166,11 +169,7 @@ namespace CanvasPractice.ViewModel
         {
             if (SelectedUXMode == UXMode.Draw)
             {
-                if (SelectedShapeType == ShapeType.Triangle)
-                {
-                    CreateThumb?.Invoke((Point?)obj);
-                }
-                else
+                if (SelectedShapeType != ShapeType.Triangle)
                 {
                     isCreate = false;
 
@@ -191,6 +190,16 @@ namespace CanvasPractice.ViewModel
 
         public ICommand DebugCommand => new DelegateCommand(obj =>
         {
+            foreach(var item in ShapeAttributes)
+            {
+                item.Value.Fill = Brushes.Magenta;
+
+                if (item.Value.ShapeType == ShapeType.Triangle)
+                {
+                    item.Value.Vertices[0] = new Point(item.Value.Vertices[0].X + 20, item.Value.Vertices[0].Y);
+                }
+            }
+            return;
             var aaaa = typeof(Brushes).GetProperties();
 
             var ssss = Enum.GetValues(typeof(UXMode));
@@ -218,20 +227,22 @@ namespace CanvasPractice.ViewModel
 
         public ICommand ThumbMouseUpCommand => new DelegateCommand(obj =>
         {
-            var p = new Point(ShapeAttribute.X, ShapeAttribute.Y);
-            ShapeAttribute.Vertices.Add(new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4));
-
-            if (SelectedShapeType == ShapeType.Triangle && ShapeAttribute.Vertices.Count == 3)
+            if (SelectedShapeType == ShapeType.Triangle)
             {
-                isCreate = false;
-                ShapeAttribute.Fill = SelectedFillColor.Value;
-                ShapeAttributes.Add(ShapeAttribute.Id, ShapeAttribute);
-                FinishCreateShape?.Invoke(ShapeAttribute);
-                RemoveThumbs?.Invoke();
-            }
-            else
-            {
-                CreateThumb?.Invoke(p);
+                if (ShapeAttribute.Vertices.Count == 3)
+                {
+                    isCreate = false;
+                    ShapeAttribute.Fill = SelectedFillColor.Value;
+                    ShapeAttributes.Add(ShapeAttribute.Id, ShapeAttribute);
+                    FinishCreateShape?.Invoke(ShapeAttribute);
+                    RemoveThumbs?.Invoke();
+                }
+                else
+                {
+                    var p = new Point(ShapeAttribute.X, ShapeAttribute.Y);
+                    ShapeAttribute.Vertices.Add(new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4));
+                    CreateThumb?.Invoke(p);
+                }
             }
         });
     }
