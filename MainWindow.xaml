@@ -57,7 +57,11 @@
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button x:Name="Debug" Click="Debug_Click">
+        <Button
+            x:Name="Debug"
+            Width="50"
+            HorizontalAlignment="Left"
+            Click="Debug_Click">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <i:InvokeCommandAction Command="{Binding DebugCommand}" />
@@ -142,31 +146,37 @@
                         <UniformGrid Columns="2" />
                     </ItemsPanelTemplate>
 
-                    <Style TargetType="{x:Type ItemsControl}">
+                    <Style x:Key="SubMenuItemsControlStyle" TargetType="{x:Type ItemsControl}">
                         <Setter Property="ItemsPanel" Value="{Binding Source={StaticResource SubSettingGrid}}" />
                         <Setter Property="Background" Value="Black" />
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="BorderThickness" Value="0,0,0,1" />
                     </Style>
 
                     <Style TargetType="{x:Type TextBlock}">
                         <Setter Property="Foreground" Value="White" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
                     </Style>
+
+                    <Style
+                        x:Key="SubMenuButtonStyle"
+                        BasedOn="{StaticResource ButtonStyle1}"
+                        TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Black" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Foreground" Value="PaleGoldenrod" />
+                    </Style>
+
                 </StackPanel.Resources>
 
-                <ItemsControl
-                    Height="30"
-                    Background="#FF0F0F0F"
-                    BorderThickness="0,0,0,1">
-                    <Border Opacity="0.5">
-                        <TextBlock VerticalAlignment="Center" Text="圖形類型" />
-                    </Border>
+                <!--  Shape Type  -->
+                <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
+                    <TextBlock VerticalAlignment="Center" Text="Shape Type" />
                     <Button
                         x:Name="SelectedShapeButton"
-                        Background="Black"
-                        BorderThickness="0"
                         Click="SelectedShapeButton_Click"
-                        Cursor="Hand"
-                        Foreground="PaleGoldenrod"
-                        Style="{StaticResource ButtonStyle1}">
+                        Style="{StaticResource SubMenuButtonStyle}">
                         <Button.Content>
                             <Viewbox>
                                 <Path
@@ -211,9 +221,9 @@
                                                 <Viewbox Height="32">
                                                     <Path
                                                         x:Name="IconPath"
-                                                        Margin="4"
+                                                        Margin="8"
                                                         Data="{Binding Icon2}"
-                                                        Stroke="Magenta"
+                                                        Stroke="Wheat"
                                                         StrokeThickness="4" />
                                                 </Viewbox>
                                                 <TextBlock
@@ -235,7 +245,7 @@
                                             <DataTrigger.Binding>
                                                 <MultiBinding Converter="{StaticResource EqualityConverter}">
                                                     <Binding />
-                                                    <Binding Path="Data.SelectedUXMode" Source="{StaticResource Proxy}" />
+                                                    <Binding Path="Data.SelectedShapeType" Source="{StaticResource Proxy}" />
                                                 </MultiBinding>
                                             </DataTrigger.Binding>
                                             <Setter TargetName="GridRoot" Property="Opacity" Value="0.6" />
@@ -250,20 +260,16 @@
                     </Popup>
                 </ItemsControl>
 
-                <ItemsControl
-                    Height="30"
-                    Background="#FF0F0F0F"
-                    BorderThickness="0,0,0,1">
+                <!--  Fill Color  -->
+                <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
                     <TextBlock VerticalAlignment="Center" Text="Color" />
                     <Button
                         x:Name="SelectedColorButton"
                         Background="{Binding SelectedFillColor.Value}"
-                        BorderThickness="1,0,0,0"
                         Click="SelectedColorButton_Click"
                         Content="Color"
-                        Cursor="Hand"
                         Foreground="PaleGoldenrod"
-                        Style="{StaticResource ButtonStyle1}" />
+                        Style="{StaticResource SubMenuButtonStyle}" />
                     <Popup
                         x:Name="PalettePopup"
                         AllowsTransparency="True"
