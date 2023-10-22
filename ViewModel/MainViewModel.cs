@@ -305,6 +305,9 @@ namespace CanvasPractice.ViewModel
         {
             SelectedUXMode = (UXMode)obj;
             CurrentFocusedShapeId = null;
+            if (isCreate)
+                RemoveShape?.Invoke(ShapeAttribute.Id);
+            isCreate = false;
         });
 
         public ICommand ChangeShapeTypeCommand => new DelegateCommand(obj =>
