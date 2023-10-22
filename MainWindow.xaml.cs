@@ -45,9 +45,9 @@ namespace CanvasPractice
                 shape.SetBinding(Shape.StrokeThicknessProperty, new Binding("StrokeThickness") { Mode = BindingMode.TwoWay });
                 shape.SetBinding(Shape.StrokeProperty, new Binding("Stroke") { Mode = BindingMode.TwoWay });
 
-                InitialShapeTriggers(ref shape, "MouseDown", new Binding("ShapeMouseDownCommand") { Source = this.DataContext });
+                InitialShapeTriggers(ref shape, "MouseLeftButtonDown", new Binding("ShapeMouseLeftButtonDownCommand") { Source = this.DataContext });
                 InitialShapeTriggers(ref shape, "MouseMove", new Binding("ShapeMouseMoveCommand") { Source = this.DataContext });
-                InitialShapeTriggers(ref shape, "MouseUp", new Binding("ShapeMouseUpCommand") { Source = this.DataContext });
+                InitialShapeTriggers(ref shape, "MouseLeftButtonUp", new Binding("ShapeMouseLeftButtonUpCommand") { Source = this.DataContext });
 
                 if (shape is Polygon polygon)
                 {

@@ -585,9 +585,9 @@
         <ScrollViewer Grid.RowSpan="2" Grid.Column="1">
             <Canvas x:Name="MyCanvas" Background="DarkGray">
                 <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseDown">
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
                         <i:InvokeCommandAction
-                            Command="{Binding CanvasMouseDownCommand}"
+                            Command="{Binding CanvasMouseLeftButtonDownCommand}"
                             EventArgsConverter="{StaticResource MouseButtonEventArgsToPointConverter}"
                             EventArgsConverterParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}}}"
                             PassEventArgsToCommand="True" />
@@ -599,9 +599,9 @@
                             EventArgsConverterParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}}}"
                             PassEventArgsToCommand="True" />
                     </i:EventTrigger>
-                    <i:EventTrigger EventName="MouseUp">
+                    <i:EventTrigger EventName="MouseLeftButtonUp">
                         <i:InvokeCommandAction
-                            Command="{Binding CanvasMouseUpCommand}"
+                            Command="{Binding CanvasMousLeftButtonUpCommand}"
                             EventArgsConverter="{StaticResource MouseButtonEventArgsToPointConverter}"
                             EventArgsConverterParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Canvas}}}"
                             PassEventArgsToCommand="True" />

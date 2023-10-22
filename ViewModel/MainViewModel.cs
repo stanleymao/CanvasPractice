@@ -154,7 +154,7 @@ namespace CanvasPractice.ViewModel
         }
         private ShapeAttribute _shapeAttribute;
 
-        public ICommand CanvasMouseDownCommand => new DelegateCommand(obj =>
+        public ICommand CanvasMouseLeftButtonDownCommand => new DelegateCommand(obj =>
         {
             if (SelectedShapeType == ShapeType.Triangle)
             {
@@ -222,7 +222,7 @@ namespace CanvasPractice.ViewModel
             }
         });
 
-        public ICommand CanvasMouseUpCommand => new DelegateCommand(obj =>
+        public ICommand CanvasMousLeftButtonUpCommand => new DelegateCommand(obj =>
         {
             if (SelectedUXMode == UXMode.Draw && isCreate)
             {
@@ -247,7 +247,7 @@ namespace CanvasPractice.ViewModel
             }
         });
 
-        public ICommand ShapeMouseDownCommand => new DelegateCommand(obj =>
+        public ICommand ShapeMouseLeftButtonDownCommand => new DelegateCommand(obj =>
         {
             var compositeCommandParameter = (CompositeCommandParameter)obj;
             var pos = (Point)compositeCommandParameter.EventArgs;
@@ -296,7 +296,7 @@ namespace CanvasPractice.ViewModel
             }
         });
 
-        public ICommand ShapeMouseUpCommand => new DelegateCommand(obj =>
+        public ICommand ShapeMouseLeftButtonUpCommand => new DelegateCommand(obj =>
         {
             CurrentPressedShapeId = null;
         });
