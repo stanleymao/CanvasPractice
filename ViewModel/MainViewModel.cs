@@ -34,7 +34,20 @@ namespace CanvasPractice.ViewModel
         private Point mouseStart;
         double x_shape, y_shape;
         ObservableCollection<Point> vertices_shape;
-        string currentId;
+
+        public string? CurrentFocusedShapeId
+        {
+            get => _currentFocusedShapeId;
+            set => SetProperty(ref _currentFocusedShapeId, value, onCurrentFocusedShapeIdChanged);
+        }
+        private string? _currentFocusedShapeId;
+
+        public string CurrentPressedShapeId
+        {
+            get => _currentPressedShapeId;
+            set => SetProperty(ref _currentPressedShapeId, value);
+        }
+        private string _currentPressedShapeId;
 
         public Action<ShapeAttribute> CreateShape;
         public Action<string> RemoveShape;
@@ -48,7 +61,7 @@ namespace CanvasPractice.ViewModel
         public UXMode SelectedUXMode
         {
             get => _selectedUXMode;
-            set => SetProperty(ref _selectedUXMode, value);
+            set => SetProperty(ref _selectedUXMode, value, onSelectedUXModeUpdated);
         }
         private UXMode _selectedUXMode = UXMode.Draw;
 
@@ -80,7 +93,7 @@ namespace CanvasPractice.ViewModel
         public KeyValuePair<string, SolidColorBrush> SelectedFill
         {
             get => _selectedFill;
-            set => SetProperty(ref _selectedFill, value);
+            set => SetProperty(ref _selectedFill, value, onSelectedFillUpdated);
         }
         private KeyValuePair<string, SolidColorBrush> _selectedFill;
 
@@ -103,7 +116,7 @@ namespace CanvasPractice.ViewModel
         public int SelectedStrokeThickness
         {
             get => _selectedStrokeThickness;
-            set => SetProperty(ref _selectedStrokeThickness, value);
+            set => SetProperty(ref _selectedStrokeThickness, value, onSelectedStrokeThicknessUpdated);
         }
         private int _selectedStrokeThickness;
 
@@ -113,7 +126,7 @@ namespace CanvasPractice.ViewModel
         public KeyValuePair<string, SolidColorBrush> SelectedStroke
         {
             get => _selectedStroke;
-            set => SetProperty(ref _selectedStroke, value);
+            set => SetProperty(ref _selectedStroke, value, onSelectedStrokeUpdated);
         }
         private KeyValuePair<string, SolidColorBrush> _selectedStroke;
 
@@ -237,7 +250,8 @@ namespace CanvasPractice.ViewModel
                 var compositeCommandParameter = (CompositeCommandParameter)obj;
                 var pos = (Point)compositeCommandParameter.EventArgs;
                 var id = (string)compositeCommandParameter.Parameter;
-                currentId = id;
+                CurrentPressedShapeId = id;
+                CurrentFocusedShapeId = id;
                 x_shape = ShapeAttributes[id].X;
                 y_shape = ShapeAttributes[id].Y;
                 vertices_shape = new ObservableCollection<Point>(ShapeAttributes[id].Vertices);
@@ -253,20 +267,20 @@ namespace CanvasPractice.ViewModel
                 var pos = (Point)compositeCommandParameter.EventArgs;
                 var id = (string)compositeCommandParameter.Parameter;
 
-                if (!string.IsNullOrEmpty(currentId))
+                if (!string.IsNullOrEmpty(CurrentPressedShapeId))
                 {
-                    if (ShapeAttributes[currentId].ShapeType == ShapeType.Triangle)
+                    if (ShapeAttributes[CurrentPressedShapeId].ShapeType == ShapeType.Triangle)
                     {
                         double x_shift = pos.X - mouseStart.X;
                         double y_shift = pos.Y - mouseStart.Y;
-                        ShapeAttributes[currentId].Vertices[0] = new Point(vertices_shape[0].X + x_shift, vertices_shape[0].Y + y_shift);
-                        ShapeAttributes[currentId].Vertices[1] = new Point(vertices_shape[1].X + x_shift, vertices_shape[1].Y + y_shift);
-                        ShapeAttributes[currentId].Vertices[2] = new Point(vertices_shape[2].X + x_shift, vertices_shape[2].Y + y_shift);
+                        ShapeAttributes[CurrentPressedShapeId].Vertices[0] = new Point(vertices_shape[0].X + x_shift, vertices_shape[0].Y + y_shift);
+                        ShapeAttributes[CurrentPressedShapeId].Vertices[1] = new Point(vertices_shape[1].X + x_shift, vertices_shape[1].Y + y_shift);
+                        ShapeAttributes[CurrentPressedShapeId].Vertices[2] = new Point(vertices_shape[2].X + x_shift, vertices_shape[2].Y + y_shift);
                     }
                     else
                     {
-                        ShapeAttributes[currentId].X = x_shape + pos.X - mouseStart.X;
-                        ShapeAttributes[currentId].Y = y_shape + pos.Y - mouseStart.Y;
+                        ShapeAttributes[CurrentPressedShapeId].X = x_shape + pos.X - mouseStart.X;
+                        ShapeAttributes[CurrentPressedShapeId].Y = y_shape + pos.Y - mouseStart.Y;
                     }
                 }
             }
@@ -274,7 +288,7 @@ namespace CanvasPractice.ViewModel
 
         public ICommand ShapeMouseUpCommand => new DelegateCommand(obj =>
         {
-            currentId = string.Empty;
+            CurrentPressedShapeId = string.Empty;
         });
 
         public ICommand DebugCommand => new DelegateCommand(obj =>
@@ -301,6 +315,7 @@ namespace CanvasPractice.ViewModel
         public ICommand ChangeUXModeCommand => new DelegateCommand(obj =>
         {
             SelectedUXMode = (UXMode)obj;
+            CurrentFocusedShapeId = null;
         });
 
         public ICommand ChangeShapeTypeCommand => new DelegateCommand(obj =>
@@ -352,5 +367,45 @@ namespace CanvasPractice.ViewModel
                 }
             }
         });
+
+        private void onSelectedUXModeUpdated()
+        {
+            RemoveThumbs?.Invoke();
+        }
+
+        private void onCurrentFocusedShapeIdChanged()
+        {
+            if (CurrentFocusedShapeId != null)
+            {
+                string id = CurrentFocusedShapeId;
+                SelectedFill = PaletteColors.First(o => o.Value == ShapeAttributes[id].Fill);
+                SelectedStrokeThickness = ShapeAttributes[id].StrokeThickness;
+                SelectedStroke = PaletteColors.First(o => o.Value == ShapeAttributes[id].Stroke);
+            }
+        }
+
+        private void onSelectedFillUpdated()
+        {
+            if (CurrentFocusedShapeId != null)
+            {
+                ShapeAttributes[CurrentFocusedShapeId].Fill = SelectedFill.Value;
+            }
+        }
+
+        private void onSelectedStrokeThicknessUpdated()
+        {
+            if (CurrentFocusedShapeId != null)
+            {
+                ShapeAttributes[CurrentFocusedShapeId].StrokeThickness = SelectedStrokeThickness;
+            }
+        }
+
+        private void onSelectedStrokeUpdated()
+        {
+            if (CurrentFocusedShapeId != null)
+            {
+                ShapeAttributes[CurrentFocusedShapeId].Stroke = SelectedStroke.Value;
+            }
+        }
     }
 }
