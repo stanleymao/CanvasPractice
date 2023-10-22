@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using EventTrigger = Microsoft.Xaml.Behaviors.EventTrigger;
 using PointCollectionConverter = CanvasPractice.Converter.PointCollectionConverter;
 
-namespace CanvasPractice
+namespace CanvasPractice.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
