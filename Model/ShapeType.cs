@@ -1,4 +1,5 @@
 ﻿using CanvasPractice.Common;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,6 +26,7 @@ namespace CanvasPractice.Model
         /// <summary>
         /// 
         /// </summary>
+        [JsonIgnore]
         public string Name
         {
             get => _name;
@@ -35,6 +37,7 @@ namespace CanvasPractice.Model
         /// <summary>
         /// 
         /// </summary>
+        [JsonIgnore]
         public Type Type
         {
             get => _type;
@@ -45,6 +48,7 @@ namespace CanvasPractice.Model
         /// <summary>
         /// 
         /// </summary>
+        [JsonIgnore]
         public BitmapImage Icon
         {
             get => _Icon;
@@ -55,14 +59,13 @@ namespace CanvasPractice.Model
         /// <summary>
         /// 
         /// </summary>
+        [JsonIgnore]
         public Geometry Icon2
         {
             get => _Icon2;
             set => SetProperty(ref _Icon2, value);
         }
         private Geometry _Icon2;
-
-
 
         static ShapeType()
         {

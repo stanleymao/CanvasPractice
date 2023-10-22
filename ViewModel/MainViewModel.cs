@@ -1,8 +1,11 @@
 ﻿using CanvasPractice.Common;
 using CanvasPractice.Model;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -42,16 +45,17 @@ namespace CanvasPractice.ViewModel
         }
         private string? _currentFocusedShapeId;
 
-        public string CurrentPressedShapeId
+        public string? CurrentPressedShapeId
         {
             get => _currentPressedShapeId;
             set => SetProperty(ref _currentPressedShapeId, value);
         }
-        private string _currentPressedShapeId;
+        private string? _currentPressedShapeId;
 
         public Action<ShapeAttribute> CreateShape;
         public Action<string> RemoveShape;
         public Action<ShapeAttribute> FinishCreateShape;
+        public Action ClearCanvas;
         public Action<Point?> CreateThumb;
         public Action RemoveThumbs;
 
@@ -220,7 +224,7 @@ namespace CanvasPractice.ViewModel
 
         public ICommand CanvasMouseUpCommand => new DelegateCommand(obj =>
         {
-            if (SelectedUXMode == UXMode.Draw)
+            if (SelectedUXMode == UXMode.Draw && isCreate)
             {
                 if (SelectedShapeType != ShapeType.Triangle)
                 {
@@ -294,28 +298,7 @@ namespace CanvasPractice.ViewModel
 
         public ICommand ShapeMouseUpCommand => new DelegateCommand(obj =>
         {
-            CurrentPressedShapeId = string.Empty;
-        });
-
-        public ICommand DebugCommand => new DelegateCommand(obj =>
-        {
-            foreach (var item in ShapeAttributes)
-            {
-                item.Value.Fill = Brushes.Magenta;
-
-                if (item.Value.ShapeType == ShapeType.Triangle)
-                {
-                    item.Value.Vertices[0] = new Point(item.Value.Vertices[0].X + 20, item.Value.Vertices[0].Y);
-                }
-            }
-            return;
-            var aaaa = typeof(Brushes).GetProperties();
-
-            var ssss = Enum.GetValues(typeof(UXMode));
-
-            var bbbb = this.ShapeAttribute.Vertices[1];
-
-            this.ShapeAttribute.Vertices[0] = new Point(30, 60);
+            CurrentPressedShapeId = null;
         });
 
         public ICommand ChangeUXModeCommand => new DelegateCommand(obj =>
@@ -384,6 +367,87 @@ namespace CanvasPractice.ViewModel
             }
         });
 
+        public ICommand NewFileCommand => new DelegateCommand(obj =>
+        {
+            MessageBoxResult messageBoxResult = MessageBox.Show("Canvas will be cleared. Are you sure?", "Caution", MessageBoxButton.YesNo);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                Reset();
+            }
+        });
+
+        public ICommand OpenFileCommand => new DelegateCommand(obj =>
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.FileName = "MyCanvas";
+            dialog.DefaultExt = ".cvs";
+            dialog.Filter = "Canvas Config file (.cvs)|*.cvs";
+
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                Reset();
+                string filename = dialog.FileName;
+
+                using (var reader = new StreamReader(filename))
+                {
+                    var input = reader.ReadToEnd();
+
+                    ShapeAttributes = JsonConvert.DeserializeObject<Dictionary<string, ShapeAttribute>>(input);
+
+                    foreach (var shapeAttribute in ShapeAttributes.Values)
+                    {
+                        switch (shapeAttribute.ShapeType.Code)
+                        {
+                            case "Rectangle":
+                                shapeAttribute.ShapeType = ShapeType.Rectangle;
+                                break;
+                            case "Triangle":
+                                shapeAttribute.ShapeType = ShapeType.Triangle;
+                                break;
+                            case "Ellipse":
+                                shapeAttribute.ShapeType = ShapeType.Ellipse;
+                                break;
+                            default:
+                                throw new ArgumentException();
+                        }
+                        ShapeAttribute = shapeAttribute;
+                        CreateShape?.Invoke(shapeAttribute);
+
+                        string id = shapeAttribute.Id;
+
+                        FinishCreateShape?.Invoke(shapeAttribute);
+                    }
+                    reader.Close();
+                }
+            }
+        });
+
+        public ICommand SaveFileCommand => new DelegateCommand(obj =>
+        {
+            var dialog = new SaveFileDialog();
+            dialog.FileName = "MyCanvas";
+            dialog.DefaultExt = ".cvs";
+            dialog.Filter = "Canvas Config file (.cvs)|*.cvs";
+
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                string filename = dialog.FileName;
+
+                string output = JsonConvert.SerializeObject(ShapeAttributes);
+
+                using (var writer = new StreamWriter(filename))
+                {
+                    writer.WriteLine(output);
+                    writer.Close();
+                }
+            }
+        });
+
         private void onSelectedUXModeUpdated()
         {
             RemoveThumbs?.Invoke();
@@ -394,9 +458,9 @@ namespace CanvasPractice.ViewModel
             if (CurrentFocusedShapeId != null)
             {
                 string id = CurrentFocusedShapeId;
-                SelectedFill = PaletteColors.First(o => o.Value == ShapeAttributes[id].Fill);
+                SelectedFill = PaletteColors.First(o => o.Value.Color == ShapeAttributes[id].Fill.Color);
                 SelectedStrokeThickness = ShapeAttributes[id].StrokeThickness;
-                SelectedStroke = PaletteColors.First(o => o.Value == ShapeAttributes[id].Stroke);
+                SelectedStroke = PaletteColors.First(o => o.Value.Color == ShapeAttributes[id].Stroke.Color);
             }
         }
 
@@ -422,6 +486,16 @@ namespace CanvasPractice.ViewModel
             {
                 ShapeAttributes[CurrentFocusedShapeId].Stroke = SelectedStroke.Value;
             }
+        }
+
+        private void Reset()
+        {
+            ShapeAttributes.Clear();
+            ClearCanvas?.Invoke();
+
+            isCreate = false;
+            CurrentFocusedShapeId = null;
+            CurrentPressedShapeId = null;
         }
     }
 }

@@ -22,7 +22,6 @@
                 <ResourceDictionary Source="/Style/Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converter:MouseButtonEventArgsToPointConverter x:Key="MouseButtonEventArgsToPointConverter" />
-            <converter:DebugConverter x:Key="DebugConverter" />
             <converter:EqualityConverter x:Key="EqualityConverter" />
 
             <common:BindingProxy x:Key="Proxy" Data="{Binding}" />
@@ -60,17 +59,66 @@
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button
-            x:Name="Debug"
-            Width="50"
-            HorizontalAlignment="Left"
-            Click="Debug_Click">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="Click">
-                    <i:InvokeCommandAction Command="{Binding DebugCommand}" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </Button>
+        <StackPanel
+            Grid.Column="1"
+            Background="Black"
+            Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style BasedOn="{StaticResource ButtonStyle1}" TargetType="{x:Type Button}">
+                    <Setter Property="Padding" Value="8" />
+                    <Setter Property="Background" Value="#80000000" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Cursor" Value="Hand" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#FF888888" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+                <Style x:Key="VerticalSeparator" TargetType="{x:Type Rectangle}">
+                    <Setter Property="Margin" Value="0,8" />
+                    <Setter Property="Fill" Value="Gray" />
+                    <Setter Property="Width" Value="1" />
+                </Style>
+            </StackPanel.Resources>
+            <Button>
+                <Image>
+                    <Image.Source>
+                        <BitmapImage UriSource="pack://application:,,,/Resource/file_new.ico" />
+                    </Image.Source>
+                </Image>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:InvokeCommandAction Command="{Binding NewFileCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <Button>
+                <Image>
+                    <Image.Source>
+                        <BitmapImage UriSource="pack://application:,,,/Resource/file_open.ico" />
+                    </Image.Source>
+                </Image>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:InvokeCommandAction Command="{Binding OpenFileCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <Button>
+                <Image>
+                    <Image.Source>
+                        <BitmapImage UriSource="pack://application:,,,/Resource/file_save.ico" />
+                    </Image.Source>
+                </Image>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:InvokeCommandAction Command="{Binding SaveFileCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+            <Rectangle Style="{StaticResource VerticalSeparator}" />
+        </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Vertical">
             <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding Source={StaticResource UXModes}}">
                 <ItemsControl.ItemsPanel>

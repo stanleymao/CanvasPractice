@@ -33,7 +33,6 @@ namespace CanvasPractice
 
             vm.CreateShape = new Action<ShapeAttribute>((ShapeAttribute attribute) =>
             {
-                System.Diagnostics.Debug.WriteLine($"CreateShape: {attribute.ShapeType.Code}, {attribute.Id}");
                 shape = (Shape)Activator.CreateInstance(attribute.ShapeType.Type);
 
                 shape.Name = attribute.Id;
@@ -76,13 +75,11 @@ namespace CanvasPractice
 
             vm.RemoveShape = new Action<string>((string id) =>
             {
-                System.Diagnostics.Debug.WriteLine($"Try remove id {id}");
+                var shapeToRemove = MyCanvas.Children.OfType<Shape>().FirstOrDefault(o => o.Name.Equals(id));
 
-                var s = MyCanvas.Children.OfType<Shape>().FirstOrDefault(o => o.Name.Equals(id));
-
-                if (s != null)
+                if (shapeToRemove != null)
                 {
-                    MyCanvas.Children.Remove(s as Shape);
+                    MyCanvas.Children.Remove(shapeToRemove as Shape);
                     updateCount();
                 }
             });
@@ -132,6 +129,10 @@ namespace CanvasPractice
                 }
             });
 
+            vm.ClearCanvas = new Action(() => {
+                MyCanvas.Children.Clear();
+            });
+
             vm.PropertyChanged += Vm_PropertyChanged;
         }
 
@@ -148,7 +149,6 @@ namespace CanvasPractice
                     }
 
                     var vm = (MainViewModel)this.DataContext;
-                    System.Diagnostics.Debug.WriteLine($"Press {vm.CurrentFocusedShapeId}");
 
                     var toCreateFocusShapeItem = MyCanvas.Children.OfType<Shape>().FirstOrDefault(o => o.Name.Equals(vm.CurrentFocusedShapeId));
                     if (toCreateFocusShapeItem != null)
@@ -270,20 +270,6 @@ namespace CanvasPractice
         private void updateCount()
         {
             BindingOperations.GetBindingExpression(CountTextBlock, TextBlock.TextProperty).UpdateTarget();
-        }
-
-        private void Debug_Click(object sender, RoutedEventArgs e)
-        {
-            foreach (var item in MyCanvas.Children.OfType<Shape>().ToList())
-            {
-                if (item is Polygon polygon)
-                {
-                    if (polygon.Points.Count > 0)
-                    {
-                        polygon.Points[0] = new Point(polygon.Points[0].X + 20, polygon.Points[0].Y);
-                    }
-                }
-            }
         }
     }
 }
