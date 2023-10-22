@@ -70,7 +70,6 @@ namespace CanvasPractice
                 }
 
                 MyCanvas.Children.Add(shape);
-                updateCount();
             });
 
             vm.RemoveShape = new Action<string>((string id) =>
@@ -80,7 +79,6 @@ namespace CanvasPractice
                 if (shapeToRemove != null)
                 {
                     MyCanvas.Children.Remove(shapeToRemove as Shape);
-                    updateCount();
                 }
             });
 
@@ -117,7 +115,6 @@ namespace CanvasPractice
                 }
                 Canvas.SetZIndex(thumb, 99);
                 MyCanvas.Children.Add(thumb);
-                updateCount();
             });
 
             vm.RemoveThumbs = new Action(() =>
@@ -125,7 +122,6 @@ namespace CanvasPractice
                 foreach (var item in MyCanvas.Children.OfType<Thumb>().ToList())
                 {
                     MyCanvas.Children.Remove(item);
-                    updateCount();
                 }
             });
 
@@ -201,7 +197,6 @@ namespace CanvasPractice
             }
 
             MyCanvas.Children.Add(shape);
-            updateCount();
         }
 
         private void InitialShapeTriggers(ref Shape shape, string eventName, Binding binding)
@@ -265,11 +260,6 @@ namespace CanvasPractice
         private void SelectStrokeInternalButton_Click(object sender, RoutedEventArgs e)
         {
             StrokePopup.IsOpen = false;
-        }
-
-        private void updateCount()
-        {
-            BindingOperations.GetBindingExpression(CountTextBlock, TextBlock.TextProperty).UpdateTarget();
         }
     }
 }
