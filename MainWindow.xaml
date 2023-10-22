@@ -48,6 +48,9 @@
         </ResourceDictionary>
 
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="Delete" Command="{Binding EraseShapeCommand}" />
+    </Window.InputBindings>
     <Grid Background="LightGray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
@@ -131,16 +134,7 @@
             </ItemsControl>
 
             <StackPanel Orientation="Vertical">
-                <StackPanel.Style>
-                    <Style TargetType="{x:Type StackPanel}">
-                        <Setter Property="Visibility" Value="Visible" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Erase}">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
+
                 <StackPanel.Resources>
                     <ItemsPanelTemplate x:Key="SubSettingGrid">
                         <UniformGrid Columns="2" />
@@ -170,219 +164,54 @@
 
                 </StackPanel.Resources>
 
-                <!--  Shape Type  -->
-                <ItemsControl>
-                    <ItemsControl.Style>
-                        <Style BasedOn="{StaticResource SubMenuItemsControlStyle}" TargetType="{x:Type ItemsControl}">
+                <StackPanel Orientation="Vertical">
+
+                    <StackPanel.Style>
+                        <Style TargetType="{x:Type StackPanel}">
+                            <Setter Property="Visibility" Value="Visible" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Select}">
+                                <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Erase}">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ItemsControl.Style>
-                    <TextBlock VerticalAlignment="Center" Text="Shape Type" />
-                    <Button
-                        x:Name="SelectShapeButton"
-                        Click="SelectShapeButton_Click"
-                        Style="{StaticResource SubMenuButtonStyle}">
-                        <Button.Content>
-                            <Viewbox>
-                                <Path
-                                    x:Name="IconPath"
-                                    Margin="4"
-                                    Data="{Binding SelectedShapeType.Icon2}"
-                                    Stroke="Wheat"
-                                    StrokeThickness="4" />
-                            </Viewbox>
-                        </Button.Content>
-                    </Button>
-                    <Popup
-                        x:Name="ShapePopup"
-                        AllowsTransparency="True"
-                        Placement="Right"
-                        PlacementTarget="{Binding ElementName=SelectShapeButton}"
-                        PopupAnimation="Fade"
-                        StaysOpen="False">
-                        <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding ShapeTypes}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <ItemContainerTemplate>
-                                    <Border BorderThickness="0">
-                                        <Button
-                                            x:Name="SelectShapeTypeInternalButton"
-                                            Padding="0"
-                                            HorizontalAlignment="Stretch"
-                                            Background="Black"
-                                            Click="SelectShapeTypeInternalButton_Click"
-                                            Cursor="Hand"
-                                            Foreground="White"
-                                            Style="{StaticResource ButtonStyle1}">
-                                            <Grid x:Name="GridRoot">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" SharedSizeGroup="Icon" />
-                                                    <ColumnDefinition Width="2*" SharedSizeGroup="Desc" />
-                                                </Grid.ColumnDefinitions>
-                                                <Rectangle Grid.ColumnSpan="2" Fill="Black" />
-                                                <Viewbox Height="32">
-                                                    <Path
-                                                        x:Name="IconPath"
-                                                        Margin="8"
-                                                        Data="{Binding Icon2}"
-                                                        Stroke="Wheat"
-                                                        StrokeThickness="4" />
-                                                </Viewbox>
-                                                <TextBlock
-                                                    x:Name="DecriptionTextBlock"
-                                                    Grid.Column="1"
-                                                    Margin="4"
-                                                    VerticalAlignment="Center"
-                                                    Text="{Binding Code}" />
-                                            </Grid>
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="Click">
-                                                    <i:InvokeCommandAction Command="{Binding Data.ChangeShapeTypeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                        </Button>
-                                    </Border>
-                                    <ItemContainerTemplate.Triggers>
-                                        <DataTrigger Value="False">
-                                            <DataTrigger.Binding>
-                                                <MultiBinding Converter="{StaticResource EqualityConverter}">
-                                                    <Binding />
-                                                    <Binding Path="Data.SelectedShapeType" Source="{StaticResource Proxy}" />
-                                                </MultiBinding>
-                                            </DataTrigger.Binding>
-                                            <Setter TargetName="GridRoot" Property="Opacity" Value="0.6" />
-                                        </DataTrigger>
-                                        <Trigger SourceName="GridRoot" Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="GridRoot" Property="Opacity" Value="0.8" />
-                                        </Trigger>
-                                    </ItemContainerTemplate.Triggers>
-                                </ItemContainerTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Popup>
-                </ItemsControl>
-
-                <ItemsControl>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Grid />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.Style>
-                        <Style BasedOn="{StaticResource SubMenuItemsControlStyle}" TargetType="{x:Type ItemsControl}">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Select}">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ItemsControl.Style>
-                    <TextBlock
-                        Grid.ColumnSpan="2"
-                        VerticalAlignment="Center"
-                        Text="Select a shape on Canvas to change attributes below."
-                        TextWrapping="Wrap" />
-                </ItemsControl>
-
-                <StackPanel Orientation="Vertical">
-                    <StackPanel.Style>
-                        <Style TargetType="{x:Type StackPanel}">
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Select}" />
-                                        <Condition Binding="{Binding CurrentFocusedShapeId}" Value="{x:Null}" />
-                                    </MultiDataTrigger.Conditions>
-                                    <MultiDataTrigger.Setters>
-                                        <Setter Property="Opacity" Value="0.3" />
-                                    </MultiDataTrigger.Setters>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
                     </StackPanel.Style>
 
-                    <!--  Fill  -->
-                    <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
-                        <TextBlock VerticalAlignment="Center" Text="Fill" />
+                    <!--  Shape Type  -->
+                    <ItemsControl>
+                        <ItemsControl.Style>
+                            <Style BasedOn="{StaticResource SubMenuItemsControlStyle}" TargetType="{x:Type ItemsControl}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Select}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
+                        <TextBlock VerticalAlignment="Center" Text="Shape Type" />
                         <Button
-                            x:Name="SelectFillButton"
-                            Background="{Binding SelectedFill.Value}"
-                            Click="SelectFillButton_Click"
-                            Foreground="PaleGoldenrod"
-                            Style="{StaticResource SubMenuButtonStyle}" />
-                        <Popup
-                            x:Name="PalettePopup"
-                            AllowsTransparency="True"
-                            Placement="Right"
-                            PlacementTarget="{Binding ElementName=SelectFillButton}"
-                            PopupAnimation="Fade"
-                            StaysOpen="False">
-                            <ItemsControl ItemsSource="{Binding PaletteColors}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Width="180" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <ItemContainerTemplate>
-                                        <Border BorderBrush="Gray" BorderThickness="1">
-                                            <Grid Width="15" Height="15">
-                                                <Button
-                                                    x:Name="SelectFillInternalButton"
-                                                    common:ClosePopupBehaviorService.CloseOnClick="True"
-                                                    Background="{Binding Value}"
-                                                    BorderThickness="0"
-                                                    Click="SelectFillInternalButton_Click"
-                                                    Cursor="Hand"
-                                                    Style="{StaticResource ButtonStyle1}"
-                                                    ToolTip="{Binding Key}">
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="Click">
-                                                            <i:InvokeCommandAction Command="{Binding Data.ChangeFillCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                </Button>
-                                            </Grid>
-                                        </Border>
-                                    </ItemContainerTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Popup>
-                    </ItemsControl>
-
-                    <!--  Stroke Thickness  -->
-                    <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
-                        <TextBlock VerticalAlignment="Center" Text="Stroke Thickness" />
-                        <Button
-                            x:Name="SelectStrokeThicknessButton"
-                            Click="SelectStrokeThicknessButton_Click"
+                            x:Name="SelectShapeButton"
+                            Click="SelectShapeButton_Click"
                             Style="{StaticResource SubMenuButtonStyle}">
                             <Button.Content>
-                                <Rectangle
-                                    Width="50"
-                                    Height="{Binding SelectedStrokeThickness}"
-                                    Margin="8"
-                                    Fill="Wheat" />
-                                <!--<TextBlock Foreground="Red" Text="{Binding SelectedStrokeThickness}" />-->
+                                <Viewbox>
+                                    <Path
+                                        x:Name="IconPath"
+                                        Margin="4"
+                                        Data="{Binding SelectedShapeType.Icon2}"
+                                        Stroke="Wheat"
+                                        StrokeThickness="4" />
+                                </Viewbox>
                             </Button.Content>
                         </Button>
                         <Popup
-                            x:Name="StrokeThicknessPopup"
+                            x:Name="ShapePopup"
                             AllowsTransparency="True"
                             Placement="Right"
-                            PlacementTarget="{Binding ElementName=SelectStrokeThicknessButton}"
+                            PlacementTarget="{Binding ElementName=SelectShapeButton}"
                             PopupAnimation="Fade"
                             StaysOpen="False">
-                            <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding Thicknesses}">
+                            <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding ShapeTypes}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Vertical" />
@@ -392,34 +221,38 @@
                                     <ItemContainerTemplate>
                                         <Border BorderThickness="0">
                                             <Button
-                                                x:Name="SelectStrokeThicknessInternalButton"
+                                                x:Name="SelectShapeTypeInternalButton"
                                                 Padding="0"
                                                 HorizontalAlignment="Stretch"
                                                 Background="Black"
-                                                Click="SelectStrokeThicknessInternalButton_Click"
+                                                Click="SelectShapeTypeInternalButton_Click"
                                                 Cursor="Hand"
                                                 Foreground="White"
                                                 Style="{StaticResource ButtonStyle1}">
                                                 <Grid x:Name="GridRoot">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="90" SharedSizeGroup="Icon" />
-                                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Desc" />
+                                                        <ColumnDefinition Width="*" SharedSizeGroup="Icon" />
+                                                        <ColumnDefinition Width="2*" SharedSizeGroup="Desc" />
                                                     </Grid.ColumnDefinitions>
                                                     <Rectangle Grid.ColumnSpan="2" Fill="Black" />
-                                                    <Rectangle
-                                                        Height="{Binding}"
-                                                        Margin="8"
-                                                        Fill="Wheat" />
+                                                    <Viewbox Height="32">
+                                                        <Path
+                                                            x:Name="IconPath"
+                                                            Margin="8"
+                                                            Data="{Binding Icon2}"
+                                                            Stroke="Wheat"
+                                                            StrokeThickness="4" />
+                                                    </Viewbox>
                                                     <TextBlock
                                                         x:Name="DecriptionTextBlock"
                                                         Grid.Column="1"
                                                         Margin="4"
                                                         VerticalAlignment="Center"
-                                                        Text="{Binding StringFormat='{}{0} Px'}" />
+                                                        Text="{Binding Code}" />
                                                 </Grid>
                                                 <i:Interaction.Triggers>
                                                     <i:EventTrigger EventName="Click">
-                                                        <i:InvokeCommandAction Command="{Binding Data.ChangeStrokeThicknessCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                        <i:InvokeCommandAction Command="{Binding Data.ChangeShapeTypeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
                                             </Button>
@@ -429,7 +262,7 @@
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource EqualityConverter}">
                                                         <Binding />
-                                                        <Binding Path="Data.SelectedStrokeThickness" Source="{StaticResource Proxy}" />
+                                                        <Binding Path="Data.SelectedShapeType" Source="{StaticResource Proxy}" />
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter TargetName="GridRoot" Property="Opacity" Value="0.6" />
@@ -444,72 +277,247 @@
                         </Popup>
                     </ItemsControl>
 
-                    <!--  Stroke  -->
-                    <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
-                        <TextBlock VerticalAlignment="Center" Text="Stroke" />
-                        <Button
-                            x:Name="SelectStrokeButton"
-                            Background="{Binding SelectedStroke.Value}"
-                            Click="SelectStrokeButton_Click"
-                            Foreground="PaleGoldenrod"
-                            Style="{StaticResource SubMenuButtonStyle}" />
-                        <Popup
-                            x:Name="StrokePopup"
-                            AllowsTransparency="True"
-                            Placement="Right"
-                            PlacementTarget="{Binding ElementName=SelectStrokeButton}"
-                            PopupAnimation="Fade"
-                            StaysOpen="False">
-                            <ItemsControl ItemsSource="{Binding PaletteColors}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Width="180" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <ItemContainerTemplate>
-                                        <Border BorderBrush="Gray" BorderThickness="1">
-                                            <Grid Width="15" Height="15">
+                    <!--  Select Mode Description  -->
+                    <ItemsControl>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.Style>
+                            <Style BasedOn="{StaticResource SubMenuItemsControlStyle}" TargetType="{x:Type ItemsControl}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Select}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
+                        <TextBlock
+                            Grid.ColumnSpan="2"
+                            VerticalAlignment="Center"
+                            Text="Select a graph on Canvas to change attributes below."
+                            TextWrapping="Wrap" />
+                    </ItemsControl>
+
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel.Style>
+                            <Style TargetType="{x:Type StackPanel}">
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Select}" />
+                                            <Condition Binding="{Binding CurrentFocusedShapeId}" Value="{x:Null}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.Setters>
+                                            <Setter Property="Opacity" Value="0.3" />
+                                        </MultiDataTrigger.Setters>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <!--  Fill  -->
+                        <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
+                            <TextBlock VerticalAlignment="Center" Text="Fill" />
+                            <Button
+                                x:Name="SelectFillButton"
+                                Background="{Binding SelectedFill.Value}"
+                                Click="SelectFillButton_Click"
+                                Foreground="PaleGoldenrod"
+                                Style="{StaticResource SubMenuButtonStyle}" />
+                            <Popup
+                                x:Name="PalettePopup"
+                                AllowsTransparency="True"
+                                Placement="Right"
+                                PlacementTarget="{Binding ElementName=SelectFillButton}"
+                                PopupAnimation="Fade"
+                                StaysOpen="False">
+                                <ItemsControl ItemsSource="{Binding PaletteColors}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Width="180" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <ItemContainerTemplate>
+                                            <Border BorderBrush="Gray" BorderThickness="1">
+                                                <Grid Width="15" Height="15">
+                                                    <Button
+                                                        x:Name="SelectFillInternalButton"
+                                                        common:ClosePopupBehaviorService.CloseOnClick="True"
+                                                        Background="{Binding Value}"
+                                                        BorderThickness="0"
+                                                        Click="SelectFillInternalButton_Click"
+                                                        Cursor="Hand"
+                                                        Style="{StaticResource ButtonStyle1}"
+                                                        ToolTip="{Binding Key}">
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="Click">
+                                                                <i:InvokeCommandAction Command="{Binding Data.ChangeFillCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </Button>
+                                                </Grid>
+                                            </Border>
+                                        </ItemContainerTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Popup>
+                        </ItemsControl>
+
+                        <!--  Stroke Thickness  -->
+                        <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
+                            <TextBlock VerticalAlignment="Center" Text="Stroke Thickness" />
+                            <Button
+                                x:Name="SelectStrokeThicknessButton"
+                                Click="SelectStrokeThicknessButton_Click"
+                                Style="{StaticResource SubMenuButtonStyle}">
+                                <Button.Content>
+                                    <Rectangle
+                                        Width="50"
+                                        Height="{Binding SelectedStrokeThickness}"
+                                        Margin="8"
+                                        Fill="Wheat" />
+                                    <!--<TextBlock Foreground="Red" Text="{Binding SelectedStrokeThickness}" />-->
+                                </Button.Content>
+                            </Button>
+                            <Popup
+                                x:Name="StrokeThicknessPopup"
+                                AllowsTransparency="True"
+                                Placement="Right"
+                                PlacementTarget="{Binding ElementName=SelectStrokeThicknessButton}"
+                                PopupAnimation="Fade"
+                                StaysOpen="False">
+                                <ItemsControl Grid.IsSharedSizeScope="True" ItemsSource="{Binding Thicknesses}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <ItemContainerTemplate>
+                                            <Border BorderThickness="0">
                                                 <Button
-                                                    x:Name="SelectStrokeInternalButton"
-                                                    common:ClosePopupBehaviorService.CloseOnClick="True"
-                                                    Background="{Binding Value}"
-                                                    BorderThickness="0"
-                                                    Click="SelectStrokeInternalButton_Click"
+                                                    x:Name="SelectStrokeThicknessInternalButton"
+                                                    Padding="0"
+                                                    HorizontalAlignment="Stretch"
+                                                    Background="Black"
+                                                    Click="SelectStrokeThicknessInternalButton_Click"
                                                     Cursor="Hand"
-                                                    Style="{StaticResource ButtonStyle1}"
-                                                    ToolTip="{Binding Key}">
+                                                    Foreground="White"
+                                                    Style="{StaticResource ButtonStyle1}">
+                                                    <Grid x:Name="GridRoot">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="90" SharedSizeGroup="Icon" />
+                                                            <ColumnDefinition Width="Auto" SharedSizeGroup="Desc" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Rectangle Grid.ColumnSpan="2" Fill="Black" />
+                                                        <Rectangle
+                                                            Height="{Binding}"
+                                                            Margin="8"
+                                                            Fill="Wheat" />
+                                                        <TextBlock
+                                                            x:Name="DecriptionTextBlock"
+                                                            Grid.Column="1"
+                                                            Margin="4"
+                                                            VerticalAlignment="Center"
+                                                            Text="{Binding StringFormat='{}{0} Px'}" />
+                                                    </Grid>
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="Click">
-                                                            <i:InvokeCommandAction Command="{Binding Data.ChangeStrokeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                            <i:InvokeCommandAction Command="{Binding Data.ChangeStrokeThicknessCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
                                                         </i:EventTrigger>
                                                     </i:Interaction.Triggers>
                                                 </Button>
-                                            </Grid>
-                                        </Border>
-                                    </ItemContainerTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Popup>
-                    </ItemsControl>
+                                            </Border>
+                                            <ItemContainerTemplate.Triggers>
+                                                <DataTrigger Value="False">
+                                                    <DataTrigger.Binding>
+                                                        <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                                            <Binding />
+                                                            <Binding Path="Data.SelectedStrokeThickness" Source="{StaticResource Proxy}" />
+                                                        </MultiBinding>
+                                                    </DataTrigger.Binding>
+                                                    <Setter TargetName="GridRoot" Property="Opacity" Value="0.6" />
+                                                </DataTrigger>
+                                                <Trigger SourceName="GridRoot" Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="GridRoot" Property="Opacity" Value="0.8" />
+                                                </Trigger>
+                                            </ItemContainerTemplate.Triggers>
+                                        </ItemContainerTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Popup>
+                        </ItemsControl>
 
-                </StackPanel>
+                        <!--  Stroke  -->
+                        <ItemsControl Style="{StaticResource SubMenuItemsControlStyle}">
+                            <TextBlock VerticalAlignment="Center" Text="Stroke" />
+                            <Button
+                                x:Name="SelectStrokeButton"
+                                Background="{Binding SelectedStroke.Value}"
+                                Click="SelectStrokeButton_Click"
+                                Foreground="PaleGoldenrod"
+                                Style="{StaticResource SubMenuButtonStyle}" />
+                            <Popup
+                                x:Name="StrokePopup"
+                                AllowsTransparency="True"
+                                Placement="Right"
+                                PlacementTarget="{Binding ElementName=SelectStrokeButton}"
+                                PopupAnimation="Fade"
+                                StaysOpen="False">
+                                <ItemsControl ItemsSource="{Binding PaletteColors}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Width="180" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <ItemContainerTemplate>
+                                            <Border BorderBrush="Gray" BorderThickness="1">
+                                                <Grid Width="15" Height="15">
+                                                    <Button
+                                                        x:Name="SelectStrokeInternalButton"
+                                                        common:ClosePopupBehaviorService.CloseOnClick="True"
+                                                        Background="{Binding Value}"
+                                                        BorderThickness="0"
+                                                        Click="SelectStrokeInternalButton_Click"
+                                                        Cursor="Hand"
+                                                        Style="{StaticResource ButtonStyle1}"
+                                                        ToolTip="{Binding Key}">
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="Click">
+                                                                <i:InvokeCommandAction Command="{Binding Data.ChangeStrokeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" />
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </Button>
+                                                </Grid>
+                                            </Border>
+                                        </ItemContainerTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Popup>
+                        </ItemsControl>
 
-                <TextBlock
-                    Name="CountTextBlock"
-                    Foreground="Black"
-                    Text="{Binding ElementName=MyCanvas, Path=Children.Count, StringFormat='CanvasCount: {0}'}" />
+                    </StackPanel>
 
-                <Rectangle
-                    Width="70"
-                    Height="70"
-                    Fill="Transparent"
-                    Opacity="1"
-                    Stroke="Black"
-                    StrokeDashArray="2 0 0 2"
-                    StrokeDashOffset="500"
-                    StrokeThickness="2">
-                    <!--<Rectangle.Triggers>
+                    <TextBlock
+                        Name="CountTextBlock"
+                        Foreground="Black"
+                        Text="{Binding ElementName=MyCanvas, Path=Children.Count, StringFormat='CanvasCount: {0}'}" />
+
+                    <Rectangle
+                        Width="70"
+                        Height="70"
+                        Fill="Transparent"
+                        Opacity="1"
+                        Stroke="Black"
+                        StrokeDashArray="2 0 0 2"
+                        StrokeDashOffset="500"
+                        StrokeThickness="2">
+                        <!--<Rectangle.Triggers>
                         <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                             <BeginStoryboard>
                                 <Storyboard>
@@ -522,10 +530,32 @@
                             </BeginStoryboard>
                         </EventTrigger>
                     </Rectangle.Triggers>-->
-                </Rectangle>
+                    </Rectangle>
+                </StackPanel>
 
-
-
+                <!--  Erase Mode Description  -->
+                <ItemsControl>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.Style>
+                        <Style BasedOn="{StaticResource SubMenuItemsControlStyle}" TargetType="{x:Type ItemsControl}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedUXMode}" Value="{x:Static model:UXMode.Erase}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                    <TextBlock
+                        Grid.ColumnSpan="2"
+                        VerticalAlignment="Center"
+                        Text="Select a graph and press 'DELETE' key to erase it."
+                        TextWrapping="Wrap" />
+                </ItemsControl>
             </StackPanel>
 
         </StackPanel>

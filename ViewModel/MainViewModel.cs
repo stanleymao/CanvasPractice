@@ -245,11 +245,17 @@ namespace CanvasPractice.ViewModel
 
         public ICommand ShapeMouseDownCommand => new DelegateCommand(obj =>
         {
+            var compositeCommandParameter = (CompositeCommandParameter)obj;
+            var pos = (Point)compositeCommandParameter.EventArgs;
+            var id = (string)compositeCommandParameter.Parameter;
+
+            if (SelectedUXMode == UXMode.Erase)
+            {
+                CurrentFocusedShapeId = id;
+            }
+
             if (SelectedUXMode == UXMode.Select)
             {
-                var compositeCommandParameter = (CompositeCommandParameter)obj;
-                var pos = (Point)compositeCommandParameter.EventArgs;
-                var id = (string)compositeCommandParameter.Parameter;
                 CurrentPressedShapeId = id;
                 CurrentFocusedShapeId = id;
                 x_shape = ShapeAttributes[id].X;
@@ -365,6 +371,16 @@ namespace CanvasPractice.ViewModel
                     ShapeAttribute.Vertices.Add(new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4));
                     CreateThumb?.Invoke(p);
                 }
+            }
+        });
+
+        public ICommand EraseShapeCommand => new DelegateCommand(obj =>
+        {
+            if (SelectedUXMode == UXMode.Erase && !string.IsNullOrEmpty(CurrentFocusedShapeId))
+            {
+                RemoveShape?.Invoke(CurrentFocusedShapeId);
+                ShapeAttributes.Remove(CurrentFocusedShapeId);
+                CurrentFocusedShapeId = null;
             }
         });
 
