@@ -1,4 +1,6 @@
-﻿using CanvasPractice.Model;
+﻿using CanvasPractice.Common;
+using CanvasPractice.Converter;
+using CanvasPractice.Model;
 using CanvasPractice.ViewModel;
 using Microsoft.Xaml.Behaviors;
 using System;
@@ -7,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using EventTrigger = Microsoft.Xaml.Behaviors.EventTrigger;
@@ -30,6 +33,7 @@ namespace CanvasPractice
 
             vm.CreateShape = new Action<ShapeAttribute>((ShapeAttribute attribute) =>
             {
+                System.Diagnostics.Debug.WriteLine($"CreateShape: {attribute.ShapeType.Code}, {attribute.Id}");
                 shape = (Shape)Activator.CreateInstance(attribute.ShapeType.Type);
 
                 shape.Name = attribute.Id;
@@ -42,11 +46,15 @@ namespace CanvasPractice
                 shape.SetBinding(Shape.StrokeThicknessProperty, new Binding("StrokeThickness") { Mode = BindingMode.TwoWay });
                 shape.SetBinding(Shape.StrokeProperty, new Binding("Stroke") { Mode = BindingMode.TwoWay });
 
+                InitialShapeTriggers(ref shape, "MouseDown", new Binding("ShapeMouseDownCommand") { Source = this.DataContext });
+                InitialShapeTriggers(ref shape, "MouseMove", new Binding("ShapeMouseMoveCommand") { Source = this.DataContext });
+                InitialShapeTriggers(ref shape, "MouseUp", new Binding("ShapeMouseUpCommand") { Source = this.DataContext });
+
                 if (shape is Polygon polygon)
                 {
                     Canvas.SetLeft(polygon, 0);
                     Canvas.SetTop(polygon, 0);
-                    
+
                     polygon.SetBinding(Polygon.PointsProperty, new Binding("Vertices")
                     {
                         Mode = BindingMode.TwoWay,
@@ -99,7 +107,7 @@ namespace CanvasPractice
                     thumb.SetBinding(Canvas.LeftProperty, new Binding($"ShapeAttribute.X") { Mode = BindingMode.TwoWay });
                     thumb.SetBinding(Canvas.TopProperty, new Binding($"ShapeAttribute.Y") { Mode = BindingMode.TwoWay });
 
-                    InvokeCommandAction invokeCommandAction = new InvokeCommandAction();                    
+                    InvokeCommandAction invokeCommandAction = new InvokeCommandAction();
                     BindingOperations.SetBinding(invokeCommandAction, InvokeCommandAction.CommandProperty, new Binding("ThumbMouseUpCommand"));
                     EventTrigger eventTrigger = new EventTrigger("PreviewMouseUp");
                     eventTrigger.Actions.Add(invokeCommandAction);
@@ -123,6 +131,19 @@ namespace CanvasPractice
                     updateCount();
                 }
             });
+        }
+
+        private void InitialShapeTriggers(ref Shape shape, string eventName, Binding binding)
+        {
+            AdvancedInvokeCommandAction invokeCommandAction = new AdvancedInvokeCommandAction();
+            BindingOperations.SetBinding(invokeCommandAction, AdvancedInvokeCommandAction.CommandProperty, binding);
+            invokeCommandAction.CommandParameter = shape.Name;
+            invokeCommandAction.EventArgsConverter = new MouseButtonEventArgsToPointConverter();
+            invokeCommandAction.EventArgsConverterParameter = MyCanvas;
+            invokeCommandAction.PassEventArgsToCommand = true;
+            EventTrigger eventTriggerMouseDown = new EventTrigger(eventName);
+            eventTriggerMouseDown.Actions.Add(invokeCommandAction);
+            Interaction.GetTriggers(shape).Add(eventTriggerMouseDown);
         }
 
         private void SelectShapeButton_Click(object sender, RoutedEventArgs e)

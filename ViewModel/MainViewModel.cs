@@ -31,10 +31,10 @@ namespace CanvasPractice.ViewModel
         }
 
         private bool isCreate = false;
-
         private Point mouseStart;
-
-        Shape shape = null;
+        double x_shape, y_shape;
+        ObservableCollection<Point> vertices_shape;
+        string currentId;
 
         public Action<ShapeAttribute> CreateShape;
         public Action<string> RemoveShape;
@@ -141,7 +141,7 @@ namespace CanvasPractice.ViewModel
         {
             if (SelectedShapeType == ShapeType.Triangle)
             {
-                CreateShape?.Invoke(ShapeAttribute);
+                ;
             }
             else
             {
@@ -173,6 +173,8 @@ namespace CanvasPractice.ViewModel
                     {
                         ShapeAttribute = new ShapeAttribute(SelectedShapeType);
                         isCreate = true;
+                        ShapeAttribute.X = double.MinValue;
+                        ShapeAttribute.Y = double.MinValue;
                         CreateThumb?.Invoke(null);
                         CreateShape?.Invoke(ShapeAttribute);
 
@@ -182,7 +184,7 @@ namespace CanvasPractice.ViewModel
                     {
                         ShapeAttribute.X = ((Point)obj).X - 4;
                         ShapeAttribute.Y = ((Point)obj).Y - 4;
-                        ShapeAttribute.Vertices[ShapeAttribute.Vertices.Count- 1] = new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4);
+                        ShapeAttribute.Vertices[ShapeAttribute.Vertices.Count - 1] = new Point(ShapeAttribute.X + 4, ShapeAttribute.Y + 4);
                     }
                 }
                 else
@@ -228,9 +230,56 @@ namespace CanvasPractice.ViewModel
             }
         });
 
+        public ICommand ShapeMouseDownCommand => new DelegateCommand(obj =>
+        {
+            if (SelectedUXMode == UXMode.Select)
+            {
+                var compositeCommandParameter = (CompositeCommandParameter)obj;
+                var pos = (Point)compositeCommandParameter.EventArgs;
+                var id = (string)compositeCommandParameter.Parameter;
+                currentId = id;
+                x_shape = ShapeAttributes[id].X;
+                y_shape = ShapeAttributes[id].Y;
+                vertices_shape = new ObservableCollection<Point>(ShapeAttributes[id].Vertices);
+                mouseStart = pos;
+            }
+        });
+
+        public ICommand ShapeMouseMoveCommand => new DelegateCommand(obj =>
+        {
+            if (SelectedUXMode == UXMode.Select)
+            {
+                var compositeCommandParameter = (CompositeCommandParameter)obj;
+                var pos = (Point)compositeCommandParameter.EventArgs;
+                var id = (string)compositeCommandParameter.Parameter;
+
+                if (!string.IsNullOrEmpty(currentId))
+                {
+                    if (ShapeAttributes[currentId].ShapeType == ShapeType.Triangle)
+                    {
+                        double x_shift = pos.X - mouseStart.X;
+                        double y_shift = pos.Y - mouseStart.Y;
+                        ShapeAttributes[currentId].Vertices[0] = new Point(vertices_shape[0].X + x_shift, vertices_shape[0].Y + y_shift);
+                        ShapeAttributes[currentId].Vertices[1] = new Point(vertices_shape[1].X + x_shift, vertices_shape[1].Y + y_shift);
+                        ShapeAttributes[currentId].Vertices[2] = new Point(vertices_shape[2].X + x_shift, vertices_shape[2].Y + y_shift);
+                    }
+                    else
+                    {
+                        ShapeAttributes[currentId].X = x_shape + pos.X - mouseStart.X;
+                        ShapeAttributes[currentId].Y = y_shape + pos.Y - mouseStart.Y;
+                    }
+                }
+            }
+        });
+
+        public ICommand ShapeMouseUpCommand => new DelegateCommand(obj =>
+        {
+            currentId = string.Empty;
+        });
+
         public ICommand DebugCommand => new DelegateCommand(obj =>
         {
-            foreach(var item in ShapeAttributes)
+            foreach (var item in ShapeAttributes)
             {
                 item.Value.Fill = Brushes.Magenta;
 
@@ -257,6 +306,12 @@ namespace CanvasPractice.ViewModel
         public ICommand ChangeShapeTypeCommand => new DelegateCommand(obj =>
         {
             SelectedShapeType = (ShapeType)obj;
+
+            if (isCreate)
+            {
+                isCreate = false;
+                RemoveShape?.Invoke(ShapeAttribute.Id);
+            }
             RemoveThumbs?.Invoke();
         });
 
